@@ -16,8 +16,6 @@ t_node	*ft_lstlast(t_node *lst)
 void	add_back(t_node **lst, t_node *new)
 {
 	t_node	*p;
-	int i;
-	int j;
 
 	p = ft_lstlast(*lst);
 	if (p == NULL)
