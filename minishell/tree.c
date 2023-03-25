@@ -8,8 +8,8 @@ void printf_tree(t_tree *root,t_node **rot,int *i)
     if(root == NULL)
         return;
     printf_tree(root->right,rot,i);
-   printf("data == %s\n",root->tokn->data);
-   printf("type == %s\n",root->tokn->type);
+//    printf("data == %s\n",root->tokn->data);
+//    printf("type == %s\n",root->tokn->type);
 
     rot[*i] = root->tokn;
     *i+= 1;
@@ -23,7 +23,13 @@ t_tree *create_node_tree(t_node *tokn)
     new_node->right = NULL;
     return(new_node);
 }
-
+// static char *delimet(char *l)
+// {
+//     int i = 0;
+//     while(ft_strchr("$",l[i]) != 0)
+//         i++;
+//     return(l +i);
+// }
 t_tree *insert(t_tree *root ,t_node *ptr)
 {
     if(root == NULL)
@@ -55,12 +61,17 @@ int len_list(t_node *head)
 // void expand(t_node **rot)
 // {
 //     int i = 0;
+//     int j = 0;
+//     int k = 0;
 //     while(rot[i])
 //     {
+//         j = 0;
 //         if(ft_strcmp(rot[i]->type,"DOUBLE") == 0)
-//             while()
 //             {
-
+//                 while(rot[i]->data[j])
+//                 {
+                    
+//                 }
 //             }
 //         i++;
 //     }
@@ -140,6 +151,7 @@ t_tree *bulid_tree(t_node *head,char **env)
     free(queue);
     t_node **rot = ft_calloc(sizeof(t_node*) , len + 1);
     int a = 0;
+    ft_inorder(root);
     printf_tree(root,rot ,&a);
     // expand(rot);
     transform_cmd(rot,env);
