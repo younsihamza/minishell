@@ -65,6 +65,13 @@ static int	sizeallocate(int lenstr, int start, int size)
 	return (a);
 }
 
+int ft_strcmp(char *str1 , char *str2)
+{
+	int i = 0;
+	while(str1[i] && str2[i] && str1[i] == str2[i])
+		i++;
+	return(str1[i] - str2[i]);
+}
 char	*ft_substr(char const *s, size_t start, size_t len)
 {
 	size_t	i;
@@ -132,4 +139,31 @@ char	*ft_strtrim(char const *s1, char const *set)
 	else
 		arr = ft_substr(str, i, (j - i + 1));
 	return (arr);
+}
+
+
+char	*ft_strjoin(char const *s1, char const *s2)
+{
+	size_t	len_s1;
+	size_t	len_s2;
+	size_t	i;
+	size_t	j;
+	char	*p;
+
+	if (!s1 || !s2)
+		return (NULL);
+	len_s1 = ft_strlen(s1);
+	len_s2 = ft_strlen(s2);
+	j = 0;
+	i = 0;
+	p = malloc(sizeof(char) * (len_s1 + len_s2) + 1);
+	if (!p)
+		return (NULL);
+	while (*(s1 + j))
+		*(p + i++) = *(s1 + j++);
+	j = 0;
+	while (*(s2 + j))
+		*(p + i++) = *(s2 + j++);
+	*(p + i) = '\0';
+	return (p);
 }

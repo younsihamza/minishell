@@ -1,13 +1,14 @@
 #include "minishell.h"
 
 
-t_node *token(char *text)
+t_node *token(char *text,char **env)
 {
     int i;
     int j;
-    char *p = " |&><$\"";
+    char *p = " |><$\"";
     t_tree *root;
     t_node *head;
+    int space = 0;
     t_node *ptr;
     head = NULL;
     i = 0;
@@ -19,32 +20,18 @@ t_node *token(char *text)
             j = i + 1;
             while(text[j] != 34 && text[j])
                 j++;
-            add_back(&head,ft_lstnew(ft_substr(text,i + 1,j - i - 1),"DOUBLE"));
+            add_back(&head,ft_lstnew(ft_substr(text,i + 1,j - i - 1),"DOUBLE",space));
             i = j + 1;
+            space = 0;
         }
         if(text[i] == 39)
         {
             j = i + 1;
             while(text[j] != 39 && text[j])
                 j++;
-            add_back(&head,ft_lstnew(ft_substr(text,i + 1,j - i - 1),"SINGLE"));
+            add_back(&head,ft_lstnew(ft_substr(text,i + 1,j - i - 1),"SINGLE",space));
             i = j + 1;
-        }
-        if(text[i] == '(')
-        {
-            j = i;
-            while(text[j] != ')')
-                j++;
-            add_back(&head,ft_lstnew(ft_substr(text,i,j-i + 1),"OP_SUB"));
-            i = j;
-        }
-        if(text[i] == '-')
-        {
-             j = i;
-            while(text[j] != ' ' && ft_strchr(p,text[j]) == 0&& text[j])
-                j++;
-            add_back(&head,ft_lstnew(ft_substr(text,i,j-i),"OP"));
-            i = j ;
+            space = 0;
         }
         if(text[i] == '<')
         {
@@ -53,27 +40,19 @@ t_node *token(char *text)
                 j+=2;
             else
                 j++;
-                while(text[j] == ' ')
-                    j++;
-                while(text[j] != ' ' && ft_strchr(p,text[j]) == 0 && text[j])
-                    j++;
                 if(j != i)
                 {
-                    add_back(&head,ft_lstnew(ft_substr(text,i,j-i),"OP_FILE"));
+                    add_back(&head,ft_lstnew(ft_substr(text,i,j-i),"OP_FILE",space));
                     i = j;
                 }
+                 space = 0;
         }
         if(text[i] == '|')
         { 
-            if(text[i+1] == '|')
-            {
-                add_back(&head,ft_lstnew(ft_substr(text,i,2),"OP_OR"));
-                i += 2;
-            }else 
-            {
-                add_back(&head,ft_lstnew(ft_substr(text,i,1),"OP_PIPE"));
+
+                add_back(&head,ft_lstnew(ft_substr(text,i,1),"OP_PIPE",space));
                 i++;
-            }
+                space = 0;
         }
         if(text[i] == '>')
         {
@@ -83,35 +62,21 @@ t_node *token(char *text)
                 j += 2;
             }else
                 j++;
-                while(text[j] == ' ')
-                    j++;
-                while(text[j] != ' ' && ft_strchr(p,text[j]) == 0 && text[j])
-                    j++;
                 if(j != i)
                 {
-                    add_back(&head,ft_lstnew(ft_substr(text,i,j-i),"OP_FILE"));
+                    add_back(&head,ft_lstnew(ft_substr(text,i,j-i),"OP_FILE",space));
                     i = j ;
                 }
+                space = 0;
         }
         if(text[i] == '$')
         {
-            j = i;
-            while(text[j] != ' ' && text[j] != '\t' && text[j])
+            j = i + 1;
+            while(ft_strchr(p,text[j]) == 0 && text[j])
                     j++;
-                add_back(&head,ft_lstnew(ft_substr(text,i,j-i),"OP_VR"));
+                add_back(&head,ft_lstnew(ft_substr(text,i,j-i),"OP_VR",space));
             i = j;
-        }
-        if(text[i] == '&')
-        {
-            if(text[i+1] == '&')
-            {
-                add_back(&head,ft_lstnew(ft_substr(text,i,2),"OP_AND"));
-                i += 2;
-            }else
-            {
-                add_back(&head,ft_lstnew(ft_substr(text,i,1),"OP_ET"));
-                i++;
-            }  
+            space = 0;
         }
         if(ft_strchr(p,text[i]) == 0)
         {
@@ -120,12 +85,18 @@ t_node *token(char *text)
                 j++;
             if(j != i)
             {
-                add_back(&head,ft_lstnew(ft_substr(text,i,j-i),"OP_WR"));
+                add_back(&head,ft_lstnew(ft_substr(text,i,j-i),"OP_WR",space));
                 i = j;
             }
+            space = 0;
         }
-        while(text[i] == ' ' && text[i])
-            i++;
+
+            while(text[i] == ' ' && text[i])
+            {
+                space = 1;
+                i++;
+            }
+
     }
     ptr = head;
     i = 1;
@@ -135,7 +106,7 @@ t_node *token(char *text)
         i++;
         ptr = ptr->next;
     }
-    root = bulid_tree(head);
+    root = bulid_tree(head,env);
     return(NULL);
 }
 
@@ -147,7 +118,8 @@ int main(int ac ,char **argv ,char **env)
         return (1);
     while( (text = readline("$> ")) != NULL)
     {
-        add_history(text);
-        token(text);
+        if(text[0] != '\0')
+            add_history(text);
+        token(text,env);
     }
  }

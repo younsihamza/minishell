@@ -25,7 +25,7 @@ void	add_back(t_node **lst, t_node *new)
 	}
 		p -> next = new;
 }
-t_node	*ft_lstnew(void *content, char *type)
+t_node	*ft_lstnew(void *content, char *type, int space)
 {
 	t_node	*p;
 
@@ -34,6 +34,7 @@ t_node	*ft_lstnew(void *content, char *type)
 		return (NULL);
 	p -> data = (char *)content;
     p -> type = type;
+	p -> space  = space;
 	p -> next = NULL;
 	return (p);
 }

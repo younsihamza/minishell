@@ -3,13 +3,17 @@
 
 
 
-void printf_tree(t_tree *root)
+void printf_tree(t_tree *root,t_node **rot,int *i)
 {
     if(root == NULL)
         return;
-    printf("data == %s\n",root->tokn->data);
-    printf_tree(root->right);
-    printf_tree(root->left);
+    printf_tree(root->right,rot,i);
+   printf("data == %s\n",root->tokn->data);
+   printf("type == %s\n",root->tokn->type);
+
+    rot[*i] = root->tokn;
+    *i+= 1;
+    printf_tree(root->left,rot,i);
 }
 t_tree *create_node_tree(t_node *tokn)
 {
@@ -41,6 +45,29 @@ int len_list(t_node *head)
     }
     return(i);
 }
+// void quoteRemove()
+// {
+//     // int i = 0;
+//     // while()
+//     //     i++;
+
+// }
+// void expand(t_node **rot)
+// {
+//     int i = 0;
+//     while(rot[i])
+//     {
+//         if(ft_strcmp(rot[i]->type,"DOUBLE") == 0)
+//             while()
+//             {
+
+//             }
+//         i++;
+//     }
+// }
+
+
+
 int check_error_parser(t_tree **q,int len)
 {
     int  i;
@@ -51,30 +78,19 @@ int check_error_parser(t_tree **q,int len)
     i = 0;
     while(i < len)
     {
-        if((ft_strncmp(q[i]->tokn->type ,"OP_OR",6) == 0 || ft_strncmp(q[i]->tokn->type ,"OP_AND",7) == 0)&& i == 0)
-            if(q[i]->right == NULL )
-                return(write(2,"ERROR parser\n",13));
-        if(ft_strncmp(q[i]->tokn->type ,"OP_PIPE",8) == 0 || ft_strncmp(q[i]->tokn->type ,"OP_ET",6) == 0)
-            if(q[i]->right == NULL || (ft_strncmp(q[i]->tokn->type ,"OP_PIPE",8) == 0 && q[i]->left == NULL))
+        if(ft_strncmp(q[i]->tokn->type ,"OP_PIPE",8) == 0 )
+            if(q[i]->right == NULL ||  q[i]->left == NULL)
                 return(write(2,"ERROR parser\n",13));
         if(ft_strncmp(q[i]->tokn->type ,"OP_FILE",8) == 0)
         {
-            j = 0;
-            k = 0;
-            while(q[i]->tokn->data[j])
-            {
-                if(q[i]->tokn->data[j]> 32  && q[i]->tokn->data[j] < 127 && ft_strchr("<>",q[i]->tokn->data[j]) != 1)
-                    k++;
-                j++;
-            }
-            if(k == 0)
+           if(q[i]->left == NULL)
                 return(write(2,"ERROR parser\n",13));
         }
         i++;
     }
     return(0);
 }
-t_tree *bulid_tree(t_node *head)
+t_tree *bulid_tree(t_node *head,char **env)
 {
     t_node *ptr = head;
     t_tree *root;
@@ -83,26 +99,20 @@ t_tree *bulid_tree(t_node *head)
     int curent;
 
     root = NULL;
-    while(ptr != NULL)
-    {
-        if(ft_strncmp(ptr->data ,"||",2) == 0 || ft_strncmp(ptr->data ,"&&",2) == 0)
-                root = insert(root,ptr);
-        ptr = ptr->next;
-    }
     ptr = head;
     while(ptr != NULL)
     {
-        if(ft_strncmp(ptr->data ,"|",1) == 0 || ft_strncmp(ptr->data ,"&",1) == 0)
+        if(ft_strncmp(ptr->type ,"OP_PIPE",7) == 0 )
             root = insert(root,ptr);
         ptr = ptr->next;
     }
     ptr = head;
-    while(ptr != NULL)
-    {
-        if(ft_strncmp(ptr->type ,"OP_FILE",8) == 0)
-            root = insert(root,ptr);
-        ptr = ptr->next;
-    }
+    // while(ptr != NULL)
+    // {
+    //     if(ft_strncmp(ptr->type ,"OP_FILE",8) == 0)
+    //         root = insert(root,ptr);
+    //     ptr = ptr->next;
+    // }
     ptr = head;
     while(ptr != NULL)
     {
@@ -114,7 +124,7 @@ t_tree *bulid_tree(t_node *head)
     if(len == 0)
         return(NULL);
     rer = 0;
-    curent = 0;
+    curent = 0;      
     queue = malloc(sizeof(t_tree*)*len);
     queue[rer] = root;
     rer++;
@@ -127,6 +137,14 @@ t_tree *bulid_tree(t_node *head)
         curent++;
     }
     check_error_parser(queue,len);
-    printf_tree(root);
+    free(queue);
+    t_node **rot = ft_calloc(sizeof(t_node*) , len + 1);
+    int a = 0;
+    printf_tree(root,rot ,&a);
+    // expand(rot);
+    transform_cmd(rot,env);
+    a = 0;
+    free(rot);
     return(NULL);
 }
+
