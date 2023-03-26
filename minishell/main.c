@@ -72,9 +72,12 @@ t_node *token(char *text,char **env)
         if(text[i] == '$')
         {
             j = i + 1;
-            while(ft_strchr(p,text[j]) == 0 && text[j])
+            while(ft_strchr(" |><$\"",text[j]) == 0 && text[j])
                     j++;
+            if(j != i +1)
                 add_back(&head,ft_lstnew(ft_substr(text,i,j-i),"OP_VR",space));
+            else
+                add_back(&head,ft_lstnew(ft_substr(text,i,1),"OP_WR",space));
             i = j;
             space = 0;
         }
@@ -114,6 +117,7 @@ int main(int ac ,char **argv ,char **env)
     {
     char *text;
     char path[100];
+    //rl_replace_lien(">", 0);
     if(ac != 1)
         return (1);
     while( (text = readline("$> ")) != NULL)

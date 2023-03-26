@@ -10,6 +10,8 @@ void printf_tree(t_tree *root,t_node **rot,int *i)
     printf_tree(root->right,rot,i);
 //    printf("data == %s\n",root->tokn->data);
 //    printf("type == %s\n",root->tokn->type);
+//    printf("type == %d\n",root->tokn->space);
+
 
     rot[*i] = root->tokn;
     *i+= 1;
@@ -51,32 +53,34 @@ int len_list(t_node *head)
     }
     return(i);
 }
-// void quoteRemove()
-// {
-//     // int i = 0;
-//     // while()
-//     //     i++;
+t_node ** edit_rot(t_node **rot,int len)
+{
+    int i =0;
+    int j = 0;
+    char *hold = NULL;
+    int cort= 0;
+    t_node **list = ft_calloc(sizeof(t_node*),len + 1);
 
-// }
-// void expand(t_node **rot)
-// {
-//     int i = 0;
-//     int j = 0;
-//     int k = 0;
-//     while(rot[i])
-//     {
-//         j = 0;
-//         if(ft_strcmp(rot[i]->type,"DOUBLE") == 0)
-//             {
-//                 while(rot[i]->data[j])
-//                 {
-                    
-//                 }
-//             }
-//         i++;
-//     }
-// }
-
+    while(rot[i] != NULL)
+    {
+        j = i + 1;
+        if(ft_strncmp(rot[i]->type,"OP_PIPE",7) != 0 &&ft_strncmp(rot[i]->type,"OP_FILE",7) != 0)
+        {
+            while(rot[j] != NULL)
+                {
+                    if(ft_strncmp(rot[j]->type,"OP_PIPE",7) != 0 && rot[j]->space == 0 && ft_strncmp(rot[j]->type,"OP_FILE",7) != 0 )
+                    {
+                        rot[i]->data = ft_strjoin(rot[i]->data,rot[j]->data);
+                    }else
+                        break;
+                        j++;
+                }
+        }
+        list[cort++] = rot[i];
+        i = j;
+    }
+    return (list);
+}
 
 
 int check_error_parser(t_tree **q,int len)
@@ -108,6 +112,7 @@ t_tree *bulid_tree(t_node *head,char **env)
     t_tree **queue;
     int rer;
     int curent;
+
 
     root = NULL;
     ptr = head;
@@ -153,8 +158,9 @@ t_tree *bulid_tree(t_node *head,char **env)
     int a = 0;
     ft_inorder(root);
     printf_tree(root,rot ,&a);
+    // edit_rot(rot,len);
     // expand(rot);
-    transform_cmd(rot,env);
+    transform_cmd(edit_rot(rot,len),env);
     a = 0;
     free(rot);
     return(NULL);

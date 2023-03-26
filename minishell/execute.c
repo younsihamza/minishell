@@ -31,7 +31,7 @@ int ft_search(char *word,char to_find)
     }
     return(len);
 }
-void dups(char **deriction)
+void dups(char **deriction,char **heredoctable)
 {
    //check_in_out(deriction);
    int i = 0;
@@ -52,6 +52,7 @@ void dups(char **deriction)
             else
             {
                 inFile = delimet(deriction[i]);
+                heredoc = NULL;
                 fd = open(inFile,O_RDONLY);
                 if(fd == -1)
                     exit(write(2,"No such file or directory\n",27));
@@ -69,13 +70,24 @@ void dups(char **deriction)
             else
             {
                 outFile = delimet(deriction[i]);
-                close(open(outFile,O_CREAT|O_TRUNC));
+                 close(open(outFile,O_CREAT|O_TRUNC,0644));
                 outAppend = NULL;
             } 
         }
         i++;
    }
-   if(inFile != NULL)
+    i = 0;
+   if(heredoc != NULL)
+   {
+        fd1 = open("/tmp/heredoc",O_WRONLY|O_CREAT|O_TRUNC,0700);
+        while(heredoctable[i])
+            ft_putstr(heredoctable[i++],fd1);
+        close(fd1);
+        fd1 = open("/tmp/heredoc",O_RDONLY);
+        dup2(fd1,0);
+
+   }
+   else if(inFile != NULL)
    {
         fd1 = open(inFile,O_RDONLY,0644);
         if(fd1 == -1)
@@ -90,7 +102,9 @@ void dups(char **deriction)
    }
    else if(outFile != NULL)
    {
-        fd2 = open(outFile,O_WRONLY| O_CREAT|O_TRUNC,0644);
+        fd2 = open(outFile,O_CREAT|O_WRONLY|O_TRUNC,777);
+        if(fd2 == -1)
+            write(2,"filed\n",6);
         dup2(fd2,1);
    }
 }
@@ -161,7 +175,7 @@ void execute(t_data *var,char **env)
                         dup2(fd[pipeIncrement][1],1);
                     
                 if(var->deriction[i] != NULL)
-                    dups(var->deriction[i]);
+                    dups(var->deriction[i],var->heredoc[i]);
 
                 if(i - 1 >= 0 && pipeIncrement > 0)
                     if(ft_strncmp(var->op[i - 1]->type,"OP_PIPE",7) == 0)

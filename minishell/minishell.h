@@ -31,6 +31,7 @@ typedef struct data{
      t_node **op;
      char ***cmd;
      char ***deriction;
+     char ***heredoc;
 }t_data;
 
 t_node	*ft_lstnew(void *content, char *type, int space);
@@ -46,6 +47,7 @@ char	*ft_substr(char const *s, size_t start, size_t len);
 char	*ft_strtrim(char const *s1, char const *set);
 int	ft_strncmp( const char *str1, const char *str2, size_t n);
 t_node  *ft_inorder(t_tree *root);
+void ft_putstr(char *str,int fd);
 t_tree *bulid_tree(t_node *head,char **env);
 int	ft_memcmp(const void *str1, const void *str2, size_t n);
 int ft_chr_index(char *str ,char a,int *len);

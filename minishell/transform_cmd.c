@@ -10,13 +10,47 @@ static char *delimet(char *l)
 }
 // cat | skmad
 
+t_node *simpleToken(char *text)
+{
+    int i = 0;
+    t_node *list = NULL;
+    int space = 0;
+    int j = 0;
 
+    while(text[i])
+    {
+        if(text[i] == '$')
+        {
+            j = i + 1;
+            while(ft_strchr(" $",text[j]) == 0 && text[j])
+                    j++;
+            if(j != i +1)
+                add_back(&list,ft_lstnew(ft_substr(text,i,j-i),"OP_VR",space));
+            else
+                add_back(&list,ft_lstnew(ft_substr(text,i,1),"OP_WR",space));
+            i = j;
+            space = 0;
+        }
+        if(ft_strchr("$",text[i]) == 0)
+        {
+            j = i;
+            while(ft_strchr("$",text[j]) == 0 && text[j])
+                j++;
+            if(j != i)
+            {
+                add_back(&list,ft_lstnew(ft_substr(text,i,j-i),"OP_WR",space));
+                i = j;
+            }
+            space = 0;
+        }
+    }
+    return (list);
+}
 
 t_node  *ft_inorder(t_tree *root)
  {
-   t_node *str;
-   t_node *ptr;
-   int i = 0;
+    t_node *str = NULL;
+    t_node *ptr = NULL;
     char *tmp = NULL;
     char *tokn = NULL;
 
@@ -29,17 +63,16 @@ t_node  *ft_inorder(t_tree *root)
     }
     else if(strcmp(root->tokn->type, "DOUBLE") == 0)
     {
-        while(root->tokn->data[i] && root->tokn->data[i] != '$')
-        {
-                
-        }
+        str = simpleToken(root->tokn->data);
+
+        ptr = str;
         while(str != NULL)
         {
-           if(strcmp(str->type, "OP_VR") == 0)
+           if(ft_strcmp(str->type, "OP_VR") == 0)
                str->data = getenv(&str->data[1]);
             str = str->next;
         }
-        tokn = malloc(sizeof(char) * 2);
+        tokn = ft_calloc(sizeof(char) , 2);
         while(ptr != NULL)
         {
             tmp = tokn;
@@ -48,28 +81,33 @@ t_node  *ft_inorder(t_tree *root)
             ptr = ptr->next;
         }
        root->tokn->data = tokn;
-    }
+     }
     ft_inorder(root->left);
  }
 
 
 
 
-void checkHerecode(char ***deriction)
+char ***checkHerecode(char ***deriction,int len)
 {
     int i = 0;
-    int j ;
-    while(deriction[i])
+    int j  = 0;
+   char ***heredocTable = ft_calloc(sizeof(char **) , len);
+    while(deriction[i] != NULL)
     {
         j = 0;
         while(deriction[i][j])
         {
+                // printf("|==%s\n",delimet(deriction[i][j]));
             if(ft_search(deriction[i][j],'<') == 2)
-                heredoc(delimet(deriction[i][j]));
+            {
+                heredocTable[i] = heredoc(delimet(deriction[i][j]));
+            }
             j++;
         }
         i++;
     }
+    return heredocTable;
 }
 
 void transform_cmd(t_node **rot,char **env)
@@ -138,7 +176,7 @@ void transform_cmd(t_node **rot,char **env)
             file = ft_join2d(file,ft_strjoin(rot[i]->data,rot[i + 1]->data));
             i++;
         }
-        if((ft_strcmp("OP_PIPE",rot[i]->type) != 0 || rot[i +1] == NULL ) && file != NULL )
+        if((ft_strcmp("OP_PIPE",rot[i]->type) == 0 || rot[i +1] == NULL ) && file != NULL )
         {
             d.deriction[j] = file;
             file = NULL;
@@ -146,6 +184,6 @@ void transform_cmd(t_node **rot,char **env)
         }
         i++;
     }
-    checkHerecode(d.deriction);
+    d.heredoc = checkHerecode(d.deriction,len + 2);
     execute(&d,env);
 }
