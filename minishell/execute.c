@@ -62,6 +62,24 @@ void buildInParent(t_data *var,int i)
             if(var->op[0] == NULL)
                 exit(0);
         }
+    else if(ft_strcmp(var->cmd[i][0],"unset") == 0)
+        {
+            if(var->op[i] != NULL)
+            {
+                if(ft_strncmp(var->op[i]->type,"OP_PIPE",7) != 0)
+                        ft_unset();
+            }else
+                ft_unset();
+        }
+    else if(ft_strcmp(var->cmd[i][0],"export") == 0)
+    {
+            if(var->op[i] != NULL)
+            {
+                if(ft_strncmp(var->op[i]->type,"OP_PIPE",7) != 0)
+                        ft_export();
+            }else
+                ft_export();
+    }
 }
 void dups(char **deriction,char **heredoctable)
 {
@@ -193,7 +211,7 @@ void execute(t_data *var,char **env)
     i = 0;
     while(var->cmd[i])
     {
-        if(ft_strcmp(var->cmd[i][0],"cd") == 0 || ft_strcmp(var->cmd[i][0],"exit") == 0)
+        if(ft_strcmp(var->cmd[i][0],"cd") == 0 || ft_strcmp(var->cmd[i][0],"exit") == 0 ||ft_strcmp(var->cmd[i][0],"export") == 0  || ft_strcmp(var->cmd[i][0],"unset") == 0 )
             buildInParent(var,i);
         else 
         {
