@@ -1,4 +1,24 @@
 #include "minishell.h"
+
+
+void echo(char **cmd)
+{
+    int i = 1;
+    int newline = 0;
+    if(cmd[i] != NULL)
+        if(ft_strcmp("-n",cmd[i]) == 0)
+                newline = i++;
+    while(cmd[i])
+    {
+        printf("%s",cmd[i]);
+        i++;
+        if(cmd[i] != NULL)
+            printf(" ");
+    }
+    if(newline == 0)
+        printf("\n");
+    
+}
 void cd (char *p)
 {
     int a;
@@ -12,6 +32,7 @@ void ft_env(char **env)
     while(env[i])
     {
         printf("%s\n",env[i]);
+        
         i++;
     }
 }

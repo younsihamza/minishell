@@ -46,7 +46,7 @@ size_t	ft_strlen(const char *str);
 char	*ft_substr(char const *s, size_t start, size_t len);
 char	*ft_strtrim(char const *s1, char const *set);
 int	ft_strncmp( const char *str1, const char *str2, size_t n);
-t_node  *ft_inorder(t_tree *root);
+void    ft_inorder(t_tree *root);
 void ft_putstr(char *str,int fd);
 t_tree *bulid_tree(t_node *head,char **env);
 int	ft_memcmp(const void *str1, const void *str2, size_t n);
@@ -59,6 +59,7 @@ void transform_cmd(t_node **rot,char **env);
 void cd (char *p);
 int ft_search(char *word,char to_find);
 char **heredoc(char *stop);
+void echo(char **cmd);
 // char **heredoc(char *stop);
 void execute(t_data *var,char **env);
 #endif // !MINISHELL_H

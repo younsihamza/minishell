@@ -11,8 +11,6 @@ void printf_tree(t_tree *root,t_node **rot,int *i)
 //    printf("data == %s\n",root->tokn->data);
 //    printf("type == %s\n",root->tokn->type);
 //    printf("type == %d\n",root->tokn->space);
-
-
     rot[*i] = root->tokn;
     *i+= 1;
     printf_tree(root->left,rot,i);
@@ -158,10 +156,10 @@ t_tree *bulid_tree(t_node *head,char **env)
     int a = 0;
     ft_inorder(root);
     printf_tree(root,rot ,&a);
-    // edit_rot(rot,len);
-    // expand(rot);
+    // // edit_rot(rot,len);
+    // // expand(rot);
     transform_cmd(edit_rot(rot,len),env);
-    a = 0;
+    // a = 0;
     free(rot);
     return(NULL);
 }

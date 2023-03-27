@@ -47,7 +47,7 @@ t_node *simpleToken(char *text)
     return (list);
 }
 
-t_node  *ft_inorder(t_tree *root)
+void  ft_inorder(t_tree *root)
  {
     t_node *str = NULL;
     t_node *ptr = NULL;
@@ -55,11 +55,12 @@ t_node  *ft_inorder(t_tree *root)
     char *tokn = NULL;
 
     if(root == NULL)
-        return NULL;
+        return ;
     ft_inorder(root->right);
     if(strcmp(root->tokn->type, "OP_VR") == 0)
     {
        root->tokn->data = getenv(&root->tokn->data[1]);
+    //    printf("%s\n",root->tokn->data);
     }
     else if(strcmp(root->tokn->type, "DOUBLE") == 0)
     {
@@ -115,6 +116,7 @@ void transform_cmd(t_node **rot,char **env)
     int i;
     int len;
     int j;
+    char **splitVar =NULL;
     t_data d;
     char ***heredocTable;
     j = 0;
@@ -148,11 +150,24 @@ void transform_cmd(t_node **rot,char **env)
             if(ft_strcmp("OP_PIPE",rot[i]->type) != 0)
             {
                 if(ft_strcmp(rot[i]->type,"OP_FILE") != 0)
-                    command = ft_join2d(command , rot[i]->data);
+                {
+                    if(ft_strcmp(rot[i]->type,"OP_VR") == 0)
+                    {
+                        splitVar = ft_split(rot[i]->data,' ');
+                            
+                        if(splitVar != NULL)
+                            while(*splitVar)
+                                {
+                                command = ft_join2d(command , *splitVar);
+                                splitVar++;
+                                }
+                    }else
+                        command = ft_join2d(command , rot[i]->data);
+                }
                 else
                     i++;
             }
-            else 
+            else
                 break;
             i++;
         }

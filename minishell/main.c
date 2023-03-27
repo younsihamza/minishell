@@ -117,7 +117,9 @@ int main(int ac ,char **argv ,char **env)
     {
     char *text;
     char path[100];
+    //free(env);
     //rl_replace_lien(">", 0);
+
     if(ac != 1)
         return (1);
     while( (text = readline("$> ")) != NULL)

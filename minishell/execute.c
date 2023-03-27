@@ -31,6 +31,38 @@ int ft_search(char *word,char to_find)
     }
     return(len);
 }
+void buildInChild(char **cmd)
+{
+    char *path;
+    if(ft_strcmp("echo",cmd[0]) == 0)
+        echo(cmd);
+    else if(ft_strcmp("pwd",cmd[0]) == 0)
+        {
+            path = ft_calloc(sizeof(char), 1024);
+            if(getcwd(path, 50) != NULL) 
+                printf("%s\n", path);
+            else
+                printf("%s", "error");
+        }
+    exit(0);
+}
+void buildInParent(t_data *var,int i)
+{
+    if(ft_strcmp(var->cmd[i][0],"cd") == 0)
+        {
+            if(var->op[i] != NULL)
+            {
+                if(ft_strncmp(var->op[i]->type,"OP_PIPE",7) != 0)
+                        cd(var->cmd[i][1]);
+            }else
+                cd(var->cmd[i][1]);
+        }
+    else if(ft_strcmp(var->cmd[i][0],"exit") == 0)
+        {
+            if(var->op[0] == NULL)
+                exit(0);
+        }
+}
 void dups(char **deriction,char **heredoctable)
 {
    //check_in_out(deriction);
@@ -114,6 +146,12 @@ void cmd1(char **cmd,char **env)
     char **split_path;
     char *joinCmd;
     int i  = 0;
+    if(ft_strcmp(cmd[0],"echo") == 0 || ft_strcmp(cmd[0],"pwd") == 0)
+    {
+        // write(2,"hamza\n",6);
+        buildInChild(cmd);
+
+    }
     execve(cmd[0],cmd,env);
     path = getenv("PATH");
     split_path =ft_split(path,':');
@@ -155,16 +193,8 @@ void execute(t_data *var,char **env)
     i = 0;
     while(var->cmd[i])
     {
-        if( i == 0 && ft_strcmp(var->cmd[0][0],"cd") == 0)
-        {
-            if(var->op[i] != NULL)
-            {
-                if(ft_strncmp(var->op[i]->type,"OP_PIPE",7) != 0)
-                        cd(var->cmd[0][1]);
-
-            }else
-                cd(var->cmd[0][1]);
-        }
+        if(ft_strcmp(var->cmd[i][0],"cd") == 0 || ft_strcmp(var->cmd[i][0],"exit") == 0)
+            buildInParent(var,i);
         else 
         {
             id =fork();

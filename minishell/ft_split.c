@@ -6,7 +6,7 @@
 /*   By: hyounsi <hyounsi@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/17 15:57:29 by hyounsi           #+#    #+#             */
-/*   Updated: 2023/03/08 16:33:47 by hyounsi          ###   ########.fr       */
+/*   Updated: 2023/03/27 14:56:41 by hyounsi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,7 +111,7 @@ char	**ft_split(char const *s, char c)
 	char	**array;
 	int		a;
 
-	if (!s)
+	if (s == NULL)
 		return (NULL);
 	n = number_of_word(s, c);
 	array = ft_calloc(sizeof(char *), n + 1);

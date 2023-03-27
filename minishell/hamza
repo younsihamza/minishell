@@ -1,0 +1,15 @@
+IH
+create_list.c
+execute.c
+expand.c
+ft_putstr.c
+ft_split.c
+ft_strnstr.c
+ft_strtrim.c
+hamza
+heredoc.c
+main.c
+minishell.h
+transform_cmd.c
+tree.c
+younsi
