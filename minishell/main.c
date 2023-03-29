@@ -1,6 +1,7 @@
 #include "minishell.h"
 
 
+
 t_node *token(char *text,char **env)
 {
     int i;
@@ -119,13 +120,12 @@ int main(int ac ,char **argv ,char **env)
     char path[100];
     //free(env);
     //rl_replace_lien(">", 0);
-
     if(ac != 1)
         return (1);
-    while( (text = readline("$> ")) != NULL)
+    while( (text = readline( BLKHB" same " CYNB " respect " WHTHB" please $> "COLOR_RESET " ")) != NULL)
     {
         if(text[0] != '\0')
             add_history(text);
-        token(text,env);
+        token( text,env);
     }
  }

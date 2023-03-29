@@ -59,8 +59,11 @@ void  ft_inorder(t_tree *root)
     ft_inorder(root->right);
     if(strcmp(root->tokn->type, "OP_VR") == 0)
     {
-       root->tokn->data = getenv(&root->tokn->data[1]);
-    //    printf("%s\n",root->tokn->data);
+       tmp = getenv(&root->tokn->data[1]);
+        if(tmp != NULL)
+            root->tokn->data = tmp;
+        else 
+            root->tokn->data =ft_calloc(sizeof(char) , 2);
     }
     else if(strcmp(root->tokn->type, "DOUBLE") == 0)
     {
@@ -70,14 +73,23 @@ void  ft_inorder(t_tree *root)
         while(str != NULL)
         {
            if(ft_strcmp(str->type, "OP_VR") == 0)
-               str->data = getenv(&str->data[1]);
+           {
+               tmp = getenv(&str->data[1]);
+               if(tmp != NULL)
+                    str->data =tmp;
+                else 
+                   str->data =ft_calloc(sizeof(char) , 2);
+           }
             str = str->next;
         }
         tokn = ft_calloc(sizeof(char) , 2);
+        // if(ptr == NULL)
+        //     write(2,"error\n",6);
         while(ptr != NULL)
         {
             tmp = tokn;
-            tokn = ft_strjoin(tokn, ptr->data);
+            if(ptr->data != NULL)
+                tokn = ft_strjoin(tokn, ptr->data);
             free(tmp);
             ptr = ptr->next;
         }
@@ -111,6 +123,22 @@ char ***checkHerecode(char ***deriction,int len)
     return heredocTable;
 }
 
+void ft_tolower(char ***cmd)
+{
+    int i= 0;
+    int j = 0;
+    while(cmd[i])
+    {
+        j = 0;
+        while(cmd[i][0][j])
+        {
+            if(cmd[i][0][j] >='A' && cmd[i][0][j] <= 'Z')
+                cmd[i][0][j] += 32;
+            j++; 
+        }
+        i++;
+    }
+}
 void transform_cmd(t_node **rot,char **env)
 {
     int i;
@@ -158,8 +186,8 @@ void transform_cmd(t_node **rot,char **env)
                         if(splitVar != NULL)
                             while(*splitVar)
                                 {
-                                command = ft_join2d(command , *splitVar);
-                                splitVar++;
+                                    command = ft_join2d(command , *splitVar);
+                                    splitVar++;
                                 }
                     }else
                         command = ft_join2d(command , rot[i]->data);
@@ -200,5 +228,6 @@ void transform_cmd(t_node **rot,char **env)
         i++;
     }
     d.heredoc = checkHerecode(d.deriction,len + 2);
+    ft_tolower(d.cmd);
     execute(&d,env);
 }

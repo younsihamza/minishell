@@ -121,13 +121,6 @@ t_tree *bulid_tree(t_node *head,char **env)
         ptr = ptr->next;
     }
     ptr = head;
-    // while(ptr != NULL)
-    // {
-    //     if(ft_strncmp(ptr->type ,"OP_FILE",8) == 0)
-    //         root = insert(root,ptr);
-    //     ptr = ptr->next;
-    // }
-    ptr = head;
     while(ptr != NULL)
     {
         root = insert(root,ptr);
