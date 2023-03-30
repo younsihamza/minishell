@@ -1,117 +1,23 @@
 #include "minishell.h"
 
-
-static char *delimet(char *l)
+void ft_tolower(char ***cmd)
 {
-    int i = 0;
-    while(ft_strchr(" <",l[i]) != 0)
-        i++;
-    return(l +i);
-}
-// cat | skmad
-
-t_node *simpleToken(char *text)
-{
-    int i = 0;
-    t_node *list = NULL;
-    int space = 0;
+    int i= 0;
     int j = 0;
-
-    while(text[i])
-    {
-        if(text[i] == '$')
-        {
-            j = i + 1;
-            while(ft_strchr(" $",text[j]) == 0 && text[j])
-                    j++;
-            if(j != i +1)
-                add_back(&list,ft_lstnew(ft_substr(text,i,j-i),"OP_VR",space));
-            else
-                add_back(&list,ft_lstnew(ft_substr(text,i,1),"OP_WR",space));
-            i = j;
-            space = 0;
-        }
-        if(ft_strchr("$",text[i]) == 0)
-        {
-            j = i;
-            while(ft_strchr("$",text[j]) == 0 && text[j])
-                j++;
-            if(j != i)
-            {
-                add_back(&list,ft_lstnew(ft_substr(text,i,j-i),"OP_WR",space));
-                i = j;
-            }
-            space = 0;
-        }
-    }
-    return (list);
-}
-
-void  ft_inorder(t_tree *root)
- {
-    t_node *str = NULL;
-    t_node *ptr = NULL;
-    char *tmp = NULL;
-    char *tokn = NULL;
-
-    if(root == NULL)
-        return ;
-    ft_inorder(root->right);
-    if(strcmp(root->tokn->type, "OP_VR") == 0)
-    {
-       root->tokn->data = getenv(&root->tokn->data[1]);
-    //    printf("%s\n",root->tokn->data);
-    }
-    else if(strcmp(root->tokn->type, "DOUBLE") == 0)
-    {
-        str = simpleToken(root->tokn->data);
-
-        ptr = str;
-        while(str != NULL)
-        {
-           if(ft_strcmp(str->type, "OP_VR") == 0)
-               str->data = getenv(&str->data[1]);
-            str = str->next;
-        }
-        tokn = ft_calloc(sizeof(char) , 2);
-        while(ptr != NULL)
-        {
-            tmp = tokn;
-            tokn = ft_strjoin(tokn, ptr->data);
-            free(tmp);
-            ptr = ptr->next;
-        }
-       root->tokn->data = tokn;
-     }
-    ft_inorder(root->left);
- }
-
-
-
-
-char ***checkHerecode(char ***deriction,int len)
-{
-    int i = 0;
-    int j  = 0;
-   char ***heredocTable = ft_calloc(sizeof(char **) , len);
-    while(deriction[i] != NULL)
+    while(cmd[i])
     {
         j = 0;
-        while(deriction[i][j])
+        while(cmd[i][0][j])
         {
-                // printf("|==%s\n",delimet(deriction[i][j]));
-            if(ft_search(deriction[i][j],'<') == 2)
-            {
-                heredocTable[i] = heredoc(delimet(deriction[i][j]));
-            }
-            j++;
+            if(cmd[i][0][j] >='A' && cmd[i][0][j] <= 'Z')
+                cmd[i][0][j] += 32;
+            j++; 
         }
         i++;
     }
-    return heredocTable;
 }
 
-void transform_cmd(t_node **rot,char **env)
+void transform_cmd(t_node **rot,t_vars *env,  t_vars *declare)
 {
     int i;
     int len;
@@ -142,6 +48,10 @@ void transform_cmd(t_node **rot,char **env)
     i = 0;
     d.cmd = ft_calloc(sizeof(char **),len + 2);
     char **command = NULL;
+    char **tmp2d;
+    char **tmpVar;
+    int r = 0;
+    char *tmp;
     j = 0;
     while(rot[i])
     {
@@ -156,13 +66,22 @@ void transform_cmd(t_node **rot,char **env)
                         splitVar = ft_split(rot[i]->data,' ');
                             
                         if(splitVar != NULL)
-                            while(*splitVar)
+                        {
+                            while(splitVar[r])
                                 {
-                                command = ft_join2d(command , *splitVar);
-                                splitVar++;
+                                    tmp2d=command;
+                                    command = ft_join2d(command , splitVar[r]);
+                                    free(tmp2d);
+                                    r++;
                                 }
+                                free(splitVar);
+                        }
                     }else
-                        command = ft_join2d(command , rot[i]->data);
+                    {
+                        tmp2d=command;
+                        command = ft_join2d(command ,ft_strdup(rot[i]->data));
+                        free(tmp2d);
+                    }
                 }
                 else
                     i++;
@@ -188,7 +107,9 @@ void transform_cmd(t_node **rot,char **env)
     {
         if(ft_strcmp(rot[i]->type,"OP_FILE") == 0)
         {
+            tmp2d = file;
             file = ft_join2d(file,ft_strjoin(rot[i]->data,rot[i + 1]->data));
+            free(tmp2d);
             i++;
         }
         if((ft_strcmp("OP_PIPE",rot[i]->type) == 0 || rot[i +1] == NULL ) && file != NULL )
@@ -200,5 +121,37 @@ void transform_cmd(t_node **rot,char **env)
         i++;
     }
     d.heredoc = checkHerecode(d.deriction,len + 2);
-    execute(&d,env);
+    ft_tolower(d.cmd);
+    execute(&d,env,declare);
+    i = 0;
+    while(i <= len )
+    {
+        if(d.heredoc[i])
+        {
+            free2d(d.heredoc[i]);
+            free(d.heredoc[i]);
+        }
+        i++;
+    }
+    free(d.heredoc);
+    free(d.op);
+    i = 0;
+    while(d.cmd[i])
+    {
+            free2d(d.cmd[i]);
+            free(d.cmd[i]);
+        i++;
+    }
+    free(d.cmd);
+   i = 0;
+    while(i <= len)
+    {
+        if(d.deriction[i] != NULL)
+        {
+            free2d(d.deriction[i]);
+            free(d.deriction[i]);
+        }
+        i++;
+    }
+    free(d.deriction);
 }

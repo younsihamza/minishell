@@ -1,131 +1,122 @@
 #include "minishell.h"
 
-
-t_node *token(char *text,char **env)
+t_vars	*ft_envnew(void *content)
 {
-    int i;
-    int j;
-    char *p = " |><$\"";
+	t_vars	*p;
+
+	p = malloc(sizeof(t_vars));
+	if (!p)
+		return (NULL);
+	p->data = (char *)content;
+    p->next = NULL;
+	return (p);
+}
+t_vars	*ft_lstlastenv(t_vars *lst)
+{
+	t_vars	*p;
+
+	p = lst ;
+	if (p == NULL)
+		return (NULL);
+	while (p->next != NULL)
+	{
+		p = p->next;
+	}
+	return (p);
+}
+void	add_envback(t_vars **lst, t_vars *new)
+{
+	t_vars	*p;
+
+	p = ft_lstlastenv(*lst);
+	if (p == NULL)
+	{
+		*lst = new;
+		return ;
+	}
+		p->next = new;
+}
+t_vars *get_env(char **env)
+{
+  int i = 0;
+  t_vars *vars = NULL;
+;  while(env[i])
+  {
+    add_envback(&vars, ft_envnew(env[i]));
+    i++;
+  }
+  return vars;
+}
+int ft_strlenCher(char *str,int a)
+{
+  int i  = 0 ;
+  if(!str)
+    return 0;
+    while(str[i] != a && str[i])
+        i++;
+    return(i);
+}
+t_vars *get_declare(char **env)
+{
+  int i = 0;
+  t_vars *vars = NULL;
+  char *tmp;
+  char *std1;
+  char *std2;
+  char *content;
+int j = 0;
+  while(env[i])
+  {
+        std1 = ft_substr(env[i],0,ft_strlenCher(env[i],'=')+1);
+        std2 = ft_substr(env[i],ft_strlenCher(env[i],'=')+1,ft_strlen(env[i]));
+        content = ft_strjoin(std1, "\"");
+        tmp= content;
+        content = ft_strjoin(content, std2);
+        free(tmp);
+        tmp= content;
+        content = ft_strjoin(content, "\"");
+        free(tmp);
+        free(std2);
+        free(std1);
+        add_envback(&vars, ft_envnew(content));
+        i++;
+  }
+  return (vars);
+}
+
+void ft_shell(t_vars *env, t_vars *declare)
+{
+  char *text;
+    char path[100];
     t_tree *root;
     t_node *head;
-    int space = 0;
-    t_node *ptr;
-    head = NULL;
-    i = 0;
-    j = 0;
-    while(text[i])
+    
+
+  while(1)
     {
-        if(text[i] == 34)
-        {
-            j = i + 1;
-            while(text[j] != 34 && text[j])
-                j++;
-            add_back(&head,ft_lstnew(ft_substr(text,i + 1,j - i - 1),"DOUBLE",space));
-            i = j + 1;
-            space = 0;
-        }
-        if(text[i] == 39)
-        {
-            j = i + 1;
-            while(text[j] != 39 && text[j])
-                j++;
-            add_back(&head,ft_lstnew(ft_substr(text,i + 1,j - i - 1),"SINGLE",space));
-            i = j + 1;
-            space = 0;
-        }
-        if(text[i] == '<')
-        {
-            j  = i;
-            if(text[j+1] == '<')
-                j+=2;
-            else
-                j++;
-                if(j != i)
-                {
-                    add_back(&head,ft_lstnew(ft_substr(text,i,j-i),"OP_FILE",space));
-                    i = j;
-                }
-                 space = 0;
-        }
-        if(text[i] == '|')
-        { 
-
-                add_back(&head,ft_lstnew(ft_substr(text,i,1),"OP_PIPE",space));
-                i++;
-                space = 0;
-        }
-        if(text[i] == '>')
-        {
-            j = i;
-            if(text[i+1] == '>')
-            {
-                j += 2;
-            }else
-                j++;
-                if(j != i)
-                {
-                    add_back(&head,ft_lstnew(ft_substr(text,i,j-i),"OP_FILE",space));
-                    i = j ;
-                }
-                space = 0;
-        }
-        if(text[i] == '$')
-        {
-            j = i + 1;
-            while(ft_strchr(" |><$\"",text[j]) == 0 && text[j])
-                    j++;
-            if(j != i +1)
-                add_back(&head,ft_lstnew(ft_substr(text,i,j-i),"OP_VR",space));
-            else
-                add_back(&head,ft_lstnew(ft_substr(text,i,1),"OP_WR",space));
-            i = j;
-            space = 0;
-        }
-        if(ft_strchr(p,text[i]) == 0)
-        {
-            j = i;
-            while(text[i] != ' ' && ft_strchr(p,text[j]) == 0 && text[j])
-                j++;
-            if(j != i)
-            {
-                add_back(&head,ft_lstnew(ft_substr(text,i,j-i),"OP_WR",space));
-                i = j;
-            }
-            space = 0;
-        }
-
-            while(text[i] == ' ' && text[i])
-            {
-                space = 1;
-                i++;
-            }
-
+      //signal_gen(2);
+      text = readline("minishell -> $> ");
+      if(!text)
+        break;
+    if(text)
+        add_history(text);
+    head = token(text);
+    root = bulid_tree(head, env , declare);
     }
-    ptr = head;
-    i = 1;
-    while(ptr != NULL)
-    {
-        ptr->i = i;
-        i++;
-        ptr = ptr->next;
-    }
-    root = bulid_tree(head,env);
-    return(NULL);
 }
+
 
 int main(int ac ,char **argv ,char **env)
     {
-    char *text;
-    char path[100];
-    //free(env);
-    //rl_replace_lien(">", 0);
+    //rl_catch_signals = 0;
+  t_vars *list;
+  t_vars *declare;
+  list = get_env(env);
+  declare = get_declare(env);
 
+  // //  signal(SIGINT, &handle_sigint); // ctrl + c
+  // //  signal(SIGQUIT, &handle_sigint); // ctrl+|
     if(ac != 1)
         return (1);
-    while( (text = readline("$> ")) != NULL)
-    {
-        if(text[0] != '\0')
-            add_history(text);
-        token(text,env);
-    }
+   ft_shell(list, declare);
  }
